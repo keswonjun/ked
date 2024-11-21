@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Learning App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+        }
+        .card {
+            background: #ffffff;
+            color: #333;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            width: 350px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .word {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2575fc;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #2575fc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #6a11cb;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            background: #2575fc;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #6a11cb;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            width: 350px;
+            font-size: 16px;
+        }
+        .correct {
+            color: #28a745;
+        }
+        .incorrect {
+            color: #dc3545;
+        }
+        .result-message {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .result-message.correct {
+            color: #28a745;
+        }
+        .result-message.incorrect {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="word" id="word">always</div>
+        <input type="text" id="translation" placeholder="Введіть переклад">
+        <div class="result-message" id="resultMessage"></div>
+        <div class="navigation">
+            <button id="prev">← Назад</button>
+            <span id="progress">1/10</span>
+            <button id="next">Далі →</button>
+        </div>
+    </div>
+    <div class="stats">
+        <span class="correct">Вірно: <span id="correct">0</span></span>
+        <span class="incorrect">Невірно: <span id="incorrect">0</span></span>
+    </div>
+    <script>
+        $(document).ready(function () {
+            const words = [
+                { english: "always", ukrainian: "завжди" },
+                { english: "never", ukrainian: "ніколи" },
+                { english: "hello", ukrainian: "привіт" },
+                { english: "goodbye", ukrainian: "до побачення" },
+                { english: "please", ukrainian: "будь ласка" },
+                { english: "thank you", ukrainian: "дякую" },
+                { english: "yes", ukrainian: "так" },
+                { english: "no", ukrainian: "ні" },
+                { english: "cat", ukrainian: "кіт" },
+                { english: "dog", ukrainian: "собака" }
+            ];
+            let currentIndex = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            function shuffle(array) {
+                return array.sort(() => Math.random() - 0.5);
+            }
+            const shuffledWords = shuffle(words);
+            function updateCard() {
+                $('#word').text(shuffledWords[currentIndex].english);
+                $('#progress').text(`${currentIndex + 1}/${shuffledWords.length}`);
+                $('#resultMessage').hide();
+            }
+            function showModal(score) {
+                const level = score > 80 ? "Високий рівень" :
+                              score > 50 ? "Середній рівень" : "Низький рівень";
+                alert(`Ваш рівень знань: ${level}`);
+            }
+            function checkAnswer() {
+                const userTranslation = $('#translation').val().trim();
+                if (userTranslation.toLowerCase() === shuffledWords[currentIndex].ukrainian.toLowerCase()) {
+                    correctCount++;
+                    $('#correct').text(correctCount);
+                    $('#resultMessage')
+                        .text('Вірно!')
+                        .removeClass('incorrect')
+                        .addClass('correct')
+                        .fadeIn();
+                } else {
+                    incorrectCount++;
+                    $('#incorrect').text(incorrectCount);
+                    $('#resultMessage')
+                        .text('Невірно!')
+                        .removeClass('correct')
+                        .addClass('incorrect')
+                        .fadeIn();
+                }
+                $('#translation').val('');
+            }
+            $('#next').click(function () {
+                checkAnswer();
+                if (currentIndex < shuffledWords.length - 1) {
+                    currentIndex++;
+                    setTimeout(updateCard, 1000);
+                } else {
+                    const score = (correctCount / shuffledWords.length) * 100;
+                    setTimeout(() => showModal(score), 1000);
+                }
+            });
+            $('#prev').click(function () {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCard();
+                }
+            });
+            updateCard();
+        });
+    </script>
+</body>
+</html>
